@@ -1,5 +1,45 @@
 # Array Problem-Solving Techniques Guide
 
+- [1. Two Pointers Technique](#1-two-pointers-technique)
+  - [Core Concept](#core-concept)
+  - [Variations & Use Cases](#variations--use-cases)
+  - [LeetCode Problems](#leetcode-problems)
+
+- [2. Sliding Window Technique](#2-sliding-window-technique)
+  - [Core Concept](#core-concept-1)
+  - [Variations & Use Cases](#variations--use-cases-1)
+  - [LeetCode Problems](#leetcode-problems-1)
+
+- [3. Prefix Sum Technique](#3-prefix-sum-technique)
+  - [Core Concept](#core-concept-2)
+  - [Variations & Use Cases](#variations--use-cases-2)
+  - [LeetCode Problems](#leetcode-problems-2)
+
+- [4. Kadane's Algorithm](#4-kadanes-algorithm)
+  - [Core Concept](#core-concept-3)
+  - [Variations & Use Cases](#variations--use-cases-3)
+  - [LeetCode Problems](#leetcode-problems-3)
+
+- [5. Binary Search on Arrays](#5-binary-search-on-arrays)
+  - [Core Concept](#core-concept-4)
+  - [Variations & Use Cases](#variations--use-cases-4)
+  - [LeetCode Problems](#leetcode-problems-4)
+
+- [6. Stack-based Techniques](#6-stack-based-techniques)
+  - [Core Concept](#core-concept-5)
+  - [Variations & Use Cases](#variations--use-cases-5)
+  - [LeetCode Problems](#leetcode-problems-5)
+
+- [7. Cyclic Sort](#7-cyclic-sort)
+  - [Core Concept](#core-concept-6)
+  - [Variations & Use Cases](#variations--use-cases-6)
+  - [LeetCode Problems](#leetcode-problems-6)
+
+- [8. Hash Map Technique](#8-hash-map-technique)
+  - [Core Concept](#core-concept-7)
+  - [Variations & Use Cases](#variations--use-cases-7)
+  - [LeetCode Problems](#leetcode-problems-7)
+
 ## 1. Two Pointers Technique
 
 ### Core Concept
