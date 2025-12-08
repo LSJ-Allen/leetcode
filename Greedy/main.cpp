@@ -2,6 +2,7 @@
 #include <string>
 #include <unordered_map>
 #include <queue>
+#include <algorithm>
 
 using namespace std;
 
@@ -90,6 +91,50 @@ public:
         }
 
         return maxProf;
+    }
+
+    // 2551. Put Marbles in Bags
+    long long putMarbles(vector<int>& weights, int k) {
+        /**
+         * Key Insight:
+         * Total Cost = (w1 + wn) sum of first and last element + sum(weights at cut positions)
+         * Each cut add two adjacent weights to the total cost
+         *
+         * Approach:
+         *  1. Compute the pair wise sum of weights
+         *      [1 3 5 1] -> [4, 8, 6]
+         *  2. sort all pair-wise sums
+         *      [4 6 8]
+         *  3. To minimize cost, we need to make a cut at the smallest pair.
+         *     To maximize cost, we need to cut at the largest pair.
+         *  4. for k bags, make k-1 cuts.
+         */
+
+        // calculate pair-wise sums
+        vector<long long> pairWise;
+        int n = weights.size();
+
+        for (int i = 1; i < n; i++) {
+            long long sum = static_cast<long long>(weights[i]) + weights[i - 1];
+            pairWise.push_back(sum);
+        }
+
+        // sort
+        sort(pairWise.begin(), pairWise.end());
+
+        // now compute max and min costs
+        long long maxCost = 0;
+        long long minCost = 0;
+
+        for (int i = 0; i < k-1; i++) {
+            // add the ith largest sum to maxCost
+            maxCost += pairWise[n - 2 - i];
+
+            // add the ith smallest sum to minCost
+            minCost += pairWise[i];
+        }
+
+        return maxCost - minCost;
     }
 };
 
