@@ -79,5 +79,5 @@ foreach (NESTED_SUBDIR ${NESTED_SUBDIRS})
         add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME})
 
         message(STATUS "  Added nested executable: ${TARGET_NAME}")
-    endif()
-endforeach()
+    endif ()
+endforeach ()

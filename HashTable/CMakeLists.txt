@@ -1,35 +1,83 @@
-# CMakeLists.txt for a specific LeetCode problem subfolder (e.g., two-sum)
+# ============================================================================
+# Auto-configure for current directory
+# ============================================================================
+# Get the current directory name to use as prefix for targets
+get_filename_component(CURRENT_DIR_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 
-# Set minimum required CMake version
-cmake_minimum_required(VERSION 3.10)
+# ============================================================================
+# Handle main.cpp in current directory
+# ============================================================================
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+    # Create executable for this directory's main.cpp
+    add_executable(${CURRENT_DIR_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
 
-# Get the directory name as the problem name
-get_filename_component(PROBLEM_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+    # Find all source files (excluding main.cpp)
+    file(GLOB CURRENT_SOURCES
+            "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/*.cc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/*.cxx"
+    )
+    list(FILTER CURRENT_SOURCES EXCLUDE REGEX ".*main\\.cpp$")
 
-# Add project command
-project(${PROBLEM_NAME})
+    # Find all header files
+    file(GLOB CURRENT_HEADERS
+            "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx"
+    )
 
-# Create executable for this problem using ONLY main.cpp initially
-add_executable(${PROBLEM_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+    # Add sources and headers to the executable
+    if (CURRENT_SOURCES OR CURRENT_HEADERS)
+        target_sources(${CURRENT_DIR_NAME} PRIVATE ${CURRENT_SOURCES} ${CURRENT_HEADERS})
+    endif ()
 
-# Find all source files EXCEPT main.cpp
-# This more explicit approach avoids including any main.cpp files
-file(GLOB ADDITIONAL_SOURCES
-        "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
-        "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
-)
+    # Add test for this executable
+    add_test(NAME ${CURRENT_DIR_NAME} COMMAND ${CURRENT_DIR_NAME})
 
-# Manually exclude main.cpp from the sources
-# This is a more reliable way to ensure main.cpp isn't added twice
-foreach(SOURCE_FILE ${ADDITIONAL_SOURCES})
-    get_filename_component(FILE_NAME ${SOURCE_FILE} NAME)
-    if(NOT ${FILE_NAME} STREQUAL "main.cpp")
-        target_sources(${PROBLEM_NAME} PRIVATE ${SOURCE_FILE})
+    message(STATUS "  Added executable: ${CURRENT_DIR_NAME}")
+endif ()
+
+# ============================================================================
+# Auto-discover and handle nested subdirectories
+# ============================================================================
+file(GLOB NESTED_SUBDIRS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} */)
+foreach (NESTED_SUBDIR ${NESTED_SUBDIRS})
+    set(NESTED_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${NESTED_SUBDIR}")
+
+    # Check if it's a directory and has main.cpp
+    if (IS_DIRECTORY ${NESTED_PATH} AND EXISTS "${NESTED_PATH}/main.cpp")
+        # Get nested directory name
+        get_filename_component(NESTED_DIR_NAME ${NESTED_SUBDIR} NAME)
+
+        # Create target name: parent_child (e.g., array_interval)
+        set(TARGET_NAME "${CURRENT_DIR_NAME}_${NESTED_DIR_NAME}")
+
+        # Create executable
+        add_executable(${TARGET_NAME} "${NESTED_PATH}/main.cpp")
+
+        # Find all source files (excluding main.cpp)
+        file(GLOB NESTED_SOURCES
+                "${NESTED_PATH}/*.cpp"
+                "${NESTED_PATH}/*.cc"
+                "${NESTED_PATH}/*.cxx"
+        )
+        list(FILTER NESTED_SOURCES EXCLUDE REGEX ".*main\\.cpp$")
+
+        # Find all header files
+        file(GLOB NESTED_HEADERS
+                "${NESTED_PATH}/*.h"
+                "${NESTED_PATH}/*.hpp"
+                "${NESTED_PATH}/*.hxx"
+        )
+
+        # Add sources and headers
+        if (NESTED_SOURCES OR NESTED_HEADERS)
+            target_sources(${TARGET_NAME} PRIVATE ${NESTED_SOURCES} ${NESTED_HEADERS})
+        endif ()
+
+        # Add test
+        add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME})
+
+        message(STATUS "  Added nested executable: ${TARGET_NAME}")
     endif()
 endforeach()
-
-# Add test for this problem
-add_test(NAME ${PROBLEM_NAME}_test COMMAND ${PROBLEM_NAME})
-
-message(STATUS "Configured problem: ${PROBLEM_NAME} (main.cpp + ${ADDITIONAL_SOURCES_COUNT} additional files)")

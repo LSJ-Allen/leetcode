@@ -7,7 +7,7 @@ get_filename_component(CURRENT_DIR_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 # ============================================================================
 # Handle main.cpp in current directory
 # ============================================================================
-if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
     # Create executable for this directory's main.cpp
     add_executable(${CURRENT_DIR_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
 
@@ -73,7 +73,7 @@ foreach (NESTED_SUBDIR ${NESTED_SUBDIRS})
         # Add sources and headers
         if (NESTED_SOURCES OR NESTED_HEADERS)
             target_sources(${TARGET_NAME} PRIVATE ${NESTED_SOURCES} ${NESTED_HEADERS})
-        endif ()
+        endif()
 
         # Add test
         add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME})
