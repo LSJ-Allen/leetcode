@@ -10,9 +10,9 @@ using namespace std;
 namespace Solution {
     // 77. combinations
     namespace combinations {
-        vector<vector<int>> result;
-        void backtrack(vector<int>& current, int k, int start, int n) {
+        vector<vector<int> > result;
 
+        void backtrack(vector<int> &current, int k, int start, int n) {
             // base case when current has k numbers, it is a valid combination
             // add it to result
             if (current.size() == k) {
@@ -22,14 +22,14 @@ namespace Solution {
 
             for (int i = start; i <= n; i++) {
                 current.push_back(i);
-                backtrack(current, k, i+1, n);
+                backtrack(current, k, i + 1, n);
 
                 // remove i to progress to the next number
                 current.pop_back();
             }
         }
 
-        vector<vector<int>> combine(int n, int k) {
+        vector<vector<int> > combine(int n, int k) {
             /**
              * Approach:
              * This approach is the classic backtrack approach when it comes to combination
@@ -48,8 +48,9 @@ namespace Solution {
 
     // 46. Permutations
     namespace permutations {
-        vector<vector<int>> result;
-        void backtrack(vector<int>& nums, int start_index, int k) {
+        vector<vector<int> > result;
+
+        void backtrack(vector<int> &nums, int start_index, int k) {
             // base case
             if (start_index == k) {
                 result.emplace_back(nums.begin(), nums.begin() + k);
@@ -57,15 +58,14 @@ namespace Solution {
 
             for (int i = start_index; i < nums.size(); i++) {
                 swap(nums[start_index], nums[i]);
-                backtrack(nums, start_index+1, k);
+                backtrack(nums, start_index + 1, k);
 
                 // swapping back
                 swap(nums[i], nums[start_index]);
             }
-
         }
 
-        vector<vector<int>> permute(vector<int>& nums) {
+        vector<vector<int> > permute(vector<int> &nums) {
             /**
              * Approach:
              * Use the Swapping method for space efficient solution.
@@ -83,8 +83,9 @@ namespace Solution {
 
     // 39. Combination Sum
     namespace combinationSum {
-        vector<vector<int>> result;
-        void backtrack(vector<int>& current, const vector<int>& nums, int sum, int target, int start) {
+        vector<vector<int> > result;
+
+        void backtrack(vector<int> &current, const vector<int> &nums, int sum, int target, int start) {
             if (sum == target) {
                 result.push_back(current);
                 return;
@@ -101,16 +102,17 @@ namespace Solution {
                 current.pop_back();
             }
         }
-        vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+
+        vector<vector<int> > combinationSum(vector<int> &candidates, int target) {
             vector<int> current = {};
             backtrack(current, candidates, 0, target, 0);
             return result;
         }
     }
-
 }
-int main(int argc, char* argv[]) {
-    vector<int> input = {2,3,6,7};
+
+int main(int argc, char *argv[]) {
+    vector<int> input = {2, 3, 6, 7};
     Solution::combinationSum::combinationSum(input, 7);
     return 0;
 }
