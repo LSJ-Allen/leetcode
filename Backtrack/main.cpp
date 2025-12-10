@@ -4,6 +4,7 @@
 #include <queue>
 #include <vector>
 #include <algorithm>
+#include <unordered_set>
 
 using namespace std;
 
@@ -109,10 +110,89 @@ namespace Solution {
             return result;
         }
     }
+
+    // 52. N-Queens II
+    namespace NQueens2 {
+        int totalSolution = 0;
+        void backtrack(unordered_set<int>& cols,
+            unordered_set<int>& rightDiagonal,
+            unordered_set<int>& antiDiagonal,
+            int row,
+            int n)
+        {
+            // base case
+            if (row == n) {
+                totalSolution++;
+                return;
+            }
+
+            for (int col = 0; col < n; col++) {
+                // check if current position is under attack
+                if (cols.contains(col) || rightDiagonal.contains(row - col) || antiDiagonal.contains(row + col)) {
+                    continue;
+                }
+
+                cols.insert(col);
+                rightDiagonal.insert(row-col);
+                antiDiagonal.insert(row + col);
+
+                backtrack(cols, rightDiagonal, antiDiagonal, row + 1, n);
+
+                // remove queen to continue explore solutions within this row
+                cols.erase(col);
+                rightDiagonal.erase(row - col);
+                antiDiagonal.erase(row +col);
+            }
+        }
+
+        int totalNQueens(int n) {
+            /**
+             * Approach:
+             * Use backtrack to explore positions to place queens.
+             * Each backtrack explore the option to place a queen on one row and the
+             * depth of recursion is equal to n. Since the board size is n by n, it
+             * is guarenteed to have one queen at each row. In the optimized solution
+             * use sets to track columns and diagonals for O(1) look up.
+             *
+             * Diagonal Representation:
+             * ↘ Diagonals can be represented by the value row - col.
+             * Example:
+             * col: 0   1   2   3
+                row 0:   (0)  1   2   3
+                row 1:   -1  (0)  1   2
+                row 2:   -2  -1  (0)  1
+                row 3:   -3  -2  -1  (0)
+             * The difference on each diagonal is the same. Thus, all ↘ diagonals can be
+             * represented by an array where index i represents the diagonal that has
+             * row - column = i and arr[i] represents whether that diagonal is attaced by a
+             * queen.
+             *
+             * Similarly, the ↙ diagonal can be represented by row + col
+             *      col: 0   1   2   3
+                row 0:   0   1   2  (3)
+                row 1:   1   2  (3)  4
+                row 2:   2  (3)  4   5
+                row 3:  (3)  4   5   6
+             *
+             * Thus, all columns and diagonals can be represented by a set for O(1) look up
+             *
+             * Time comlexity: O(n!)
+             * row 0: n positions (n columns available)
+             * row 1: roughly (n-2 columns available cuz prev queen taks away a column and a diagonal)
+             * row 2: roughly n-4
+             *  ...
+             * Space complexity: O(n)
+             */
+
+            unordered_set<int> cols, rightDiagonal, antiDiagonal;
+            backtrack(cols, rightDiagonal, antiDiagonal, 0, n);
+            return totalSolution;
+        }
+    }
 }
 
 int main(int argc, char *argv[]) {
-    vector<int> input = {2, 3, 6, 7};
-    Solution::combinationSum::combinationSum(input, 7);
+    int result = Solution::NQueens2::totalNQueens(9);
+    cout << result << endl;
     return 0;
 }
