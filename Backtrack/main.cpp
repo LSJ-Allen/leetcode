@@ -114,12 +114,12 @@ namespace Solution {
     // 52. N-Queens II
     namespace NQueens2 {
         int totalSolution = 0;
-        void backtrack(unordered_set<int>& cols,
-            unordered_set<int>& rightDiagonal,
-            unordered_set<int>& antiDiagonal,
-            int row,
-            int n)
-        {
+
+        void backtrack(unordered_set<int> &cols,
+                       unordered_set<int> &rightDiagonal,
+                       unordered_set<int> &antiDiagonal,
+                       int row,
+                       int n) {
             // base case
             if (row == n) {
                 totalSolution++;
@@ -133,7 +133,7 @@ namespace Solution {
                 }
 
                 cols.insert(col);
-                rightDiagonal.insert(row-col);
+                rightDiagonal.insert(row - col);
                 antiDiagonal.insert(row + col);
 
                 backtrack(cols, rightDiagonal, antiDiagonal, row + 1, n);
@@ -141,7 +141,7 @@ namespace Solution {
                 // remove queen to continue explore solutions within this row
                 cols.erase(col);
                 rightDiagonal.erase(row - col);
-                antiDiagonal.erase(row +col);
+                antiDiagonal.erase(row + col);
             }
         }
 
@@ -189,10 +189,52 @@ namespace Solution {
             return totalSolution;
         }
     }
+
+    // 22. Generate Parentheses
+    namespace generateParentheses {
+        vector<string> result;
+        void backtrack(int numOpen, int numClose, int n, string& s) {
+            // base case
+            if (s.length() == 2 * n) {
+                result.push_back(s);
+                return;
+            }
+
+            // add opening
+            if (numOpen < n) {
+                s.push_back('(');
+                backtrack(numOpen + 1, numClose, n, s);
+                s.pop_back();
+            }
+
+            // add closing
+            if (numClose < numOpen) {
+                s.push_back(')');
+                backtrack(numOpen, numClose + 1, n, s);
+                s.pop_back();
+            }
+
+        }
+        vector<string> generateParenthesis(int n) {
+            /**
+             * Approach:
+             *
+             * Track the number of opening parentheses and closing
+             * parenthese used. We can add an opening parenthesis as
+             * long as we haven't used all n of them. We can add a closing
+             * parenthesis only lif it wouldn't exceed the number of openig parentheses
+             * used so far.
+             *
+             * Each backtrack level add one parentheses to the string.
+             */
+            string s;
+            backtrack(0, 0, n, s);
+            return result;
+        }
+    }
 }
 
 int main(int argc, char *argv[]) {
-    int result = Solution::NQueens2::totalNQueens(9);
-    cout << result << endl;
+    Solution::generateParentheses::generateParenthesis(3);
     return 0;
 }
