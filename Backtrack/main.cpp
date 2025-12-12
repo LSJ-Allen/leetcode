@@ -193,7 +193,8 @@ namespace Solution {
     // 22. Generate Parentheses
     namespace generateParentheses {
         vector<string> result;
-        void backtrack(int numOpen, int numClose, int n, string& s) {
+
+        void backtrack(int numOpen, int numClose, int n, string &s) {
             // base case
             if (s.length() == 2 * n) {
                 result.push_back(s);
@@ -213,8 +214,8 @@ namespace Solution {
                 backtrack(numOpen, numClose + 1, n, s);
                 s.pop_back();
             }
-
         }
+
         vector<string> generateParenthesis(int n) {
             /**
              * Approach:
@@ -232,9 +233,83 @@ namespace Solution {
             return result;
         }
     }
+
+    // 79. Word Search
+    namespace wordSearch {
+        bool search(vector<vector<char>>& board, int i, int j, int index, const string& word) {
+            // argument index is the index of the next char
+
+            // base case
+            if (index == word.size()) {
+                return true;
+            }
+
+            // turn the current element to -1 so backtrack does not come back to it
+            char val = board[i][j];
+            board[i][j] = -1;
+
+            // check top neighbor
+            if ( i - 1 >= 0 && board[i-1][j] == word[index]) {
+                if (search(board, i - 1, j, index + 1, word)) {
+                    return true;
+                };
+            }
+
+            // check right neighbor
+            if (j + 1 < board[0].size() && board[i][j+1] == word[index]) {
+                if (search(board, i, j + 1, index + 1, word)) {
+                    return true;
+                };
+            }
+
+            // check down neighbor
+            if (i + 1< board.size() && board[i+1][j] == word[index]) {
+                if (search(board, i + 1, j, index + 1, word)) {
+                    return true;
+                };
+            }
+
+            // check left neighbor
+            if (j - 1 >= 0 && board[i][j-1] == word[index]) {
+                if (search(board, i , j - 1, index + 1, word)) {
+                    return true;
+                };
+            }
+
+            // undo board modification
+            board[i][j] = val;
+            // if the code progressed here, it means none of the 4 paths lead to a valid solution,
+            // return false;
+            return false;
+        }
+
+        bool exist(vector<vector<char>>& board, string word) {
+            /**
+             * Approach:
+             *
+             * Use backtrack to explore different paths, starting at a cell that contains the first character.
+             * Each call stack adds one character to the path.
+             */
+            int m = (int) board.size();
+            int n = (int) board[0].size();
+
+            for (int i = 0; i < m; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (board[i][j] == word[0]) {
+                        if (search(board, i, j, 1, word)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+    }
 }
 
 int main(int argc, char *argv[]) {
-    Solution::generateParentheses::generateParenthesis(3);
+    vector<vector<char>> board = {{'C','A','A'},{'A','A','A'},{'B','C','D'}};
+    bool result = Solution::wordSearch::exist(board, "AAB");
     return 0;
 }
