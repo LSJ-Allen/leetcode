@@ -236,7 +236,7 @@ namespace Solution {
 
     // 79. Word Search
     namespace wordSearch {
-        bool search(vector<vector<char>>& board, int i, int j, int index, const string& word) {
+        bool search(vector<vector<char> > &board, int i, int j, int index, const string &word) {
             // argument index is the index of the next char
 
             // base case
@@ -249,29 +249,29 @@ namespace Solution {
             board[i][j] = -1;
 
             // check top neighbor
-            if ( i - 1 >= 0 && board[i-1][j] == word[index]) {
+            if (i - 1 >= 0 && board[i - 1][j] == word[index]) {
                 if (search(board, i - 1, j, index + 1, word)) {
                     return true;
                 };
             }
 
             // check right neighbor
-            if (j + 1 < board[0].size() && board[i][j+1] == word[index]) {
+            if (j + 1 < board[0].size() && board[i][j + 1] == word[index]) {
                 if (search(board, i, j + 1, index + 1, word)) {
                     return true;
                 };
             }
 
             // check down neighbor
-            if (i + 1< board.size() && board[i+1][j] == word[index]) {
+            if (i + 1 < board.size() && board[i + 1][j] == word[index]) {
                 if (search(board, i + 1, j, index + 1, word)) {
                     return true;
                 };
             }
 
             // check left neighbor
-            if (j - 1 >= 0 && board[i][j-1] == word[index]) {
-                if (search(board, i , j - 1, index + 1, word)) {
+            if (j - 1 >= 0 && board[i][j - 1] == word[index]) {
+                if (search(board, i, j - 1, index + 1, word)) {
                     return true;
                 };
             }
@@ -283,7 +283,7 @@ namespace Solution {
             return false;
         }
 
-        bool exist(vector<vector<char>>& board, string word) {
+        bool exist(vector<vector<char> > &board, string word) {
             /**
              * Approach:
              *
@@ -309,7 +309,7 @@ namespace Solution {
 }
 
 int main(int argc, char *argv[]) {
-    vector<vector<char>> board = {{'C','A','A'},{'A','A','A'},{'B','C','D'}};
+    vector<vector<char> > board = {{'C', 'A', 'A'}, {'A', 'A', 'A'}, {'B', 'C', 'D'}};
     bool result = Solution::wordSearch::exist(board, "AAB");
     return 0;
 }
