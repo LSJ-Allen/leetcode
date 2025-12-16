@@ -8,7 +8,7 @@
 using namespace std;
 
 namespace Solution {
-    int coinChange(vector<int>& coins, int amount) {
+    int coinChange(vector<int> &coins, int amount) {
         /**
          * Approach:
          *
@@ -26,11 +26,11 @@ namespace Solution {
          *
          */
 
-        vector<int>dp(amount + 1, -1);
+        vector<int> dp(amount + 1, -1);
         dp[0] = 0;
         for (int i = 1; i < amount + 1; i++) {
             // iterate each coin
-            for (int coin : coins) {
+            for (int coin: coins) {
                 if (coin > i) continue;
 
                 int remainValue = i - coin;
@@ -45,7 +45,7 @@ namespace Solution {
         return dp[amount];
     }
 
-    int rob(vector<int>& nums) {
+    int rob(vector<int> &nums) {
         /**
          * Approach:
          *
@@ -57,12 +57,12 @@ namespace Solution {
          * the value of the current house.
          */
 
-        vector<int>dp(nums.size() + 2, 0);
+        vector<int> dp(nums.size() + 2, 0);
         for (int i = 2; i < dp.size(); i++) {
-            dp[i] = max(dp[i-1], dp[i-2] + nums[i-2]);
+            dp[i] = max(dp[i - 1], dp[i - 2] + nums[i - 2]);
         }
 
-        return dp[dp.size()-1];
+        return dp[dp.size() - 1];
     }
 
     // 1411. Number of Ways to Paint N * 3 Grid
@@ -93,8 +93,8 @@ namespace Solution {
          */
         const int MOD = 1e9 + 7;
 
-        long long type1 = 6;  // ABC patterns
-        long long type2 = 6;  // ABA patterns
+        long long type1 = 6; // ABC patterns
+        long long type2 = 6; // ABA patterns
 
         for (int i = 2; i <= n; i++) {
             long long type1new = 2 * type1 + 2 * type2;
@@ -106,7 +106,7 @@ namespace Solution {
         return (type1 + type2) % MOD;
     }
 
-    int maxProfit(vector<int>& prices) {
+    int maxProfit(vector<int> &prices) {
         /**
          * Approach:
          *
@@ -126,7 +126,7 @@ namespace Solution {
          * in hold state.
          *
          */
-        int n = static_cast<int> (prices.size());
+        int n = static_cast<int>(prices.size());
         vector<int> hold(n, 0);
         vector<int> sold(n, 0);
         vector<int> rest(n, 0);
@@ -137,23 +137,22 @@ namespace Solution {
 
         for (int i = 1; i < prices.size(); i++) {
             // choose the max between two available transitions
-            rest[i] = max(rest[i-1], sold[i-1]);
+            rest[i] = max(rest[i - 1], sold[i - 1]);
 
             // choosing between keep holding or transition from rest to purchase today
-            hold[i] = max(hold[i-1], rest[i-1] - prices[i]);
+            hold[i] = max(hold[i - 1], rest[i - 1] - prices[i]);
 
             // sell today
-            sold[i] = hold[i-1] + prices[i];
+            sold[i] = hold[i - 1] + prices[i];
         }
 
         // must not hold on last day for best result, thus max between sold and rest
-        return max(rest[n-1], sold[n-1]);
-
+        return max(rest[n - 1], sold[n - 1]);
     }
 }
 
 int main() {
-    vector<int> input = {1,2,3,1};
+    vector<int> input = {1, 2, 3, 1};
     Solution::rob(input);
     return 0;
 }
