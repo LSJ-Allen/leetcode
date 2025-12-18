@@ -30,7 +30,7 @@ namespace Solution {
         // step 3. convert to digits
         long result = 0;
         while (i < n && isdigit(s[i])) {
-            result = result*10 + (s[i] - '0');
+            result = result * 10 + (s[i] - '0');
 
             // Check for overflow before applying sign
             if (result * sign > INT_MAX) return INT_MAX;
@@ -43,7 +43,7 @@ namespace Solution {
     }
 
     namespace ReverseWords {
-        vector<string> split(const string& s, char delimiter) {
+        vector<string> split(const string &s, char delimiter) {
             vector<string> tokens;
             string token;
             stringstream ss(s);
@@ -65,15 +65,15 @@ namespace Solution {
             reverse(words.begin(), words.end());
 
             string result = accumulate(words.begin(), words.end(), string(""),
-                [](const string& s1, const string& s2) {
-                    return s1.empty() ? s2 : s1 + " " + s2;
-                });
+                                       [](const string &s1, const string &s2) {
+                                           return s1.empty() ? s2 : s1 + " " + s2;
+                                       });
             return result;
         }
     }
 
     namespace TextJustification {
-        string justifyLine(vector<string>& words, int wordsLength, int maxWidth, bool isLastLine) {
+        string justifyLine(vector<string> &words, int wordsLength, int maxWidth, bool isLastLine) {
             // Handle single word or last line (left-justified)
             if (words.size() == 1 || isLastLine) {
                 string line = words[0];
@@ -105,12 +105,12 @@ namespace Solution {
             return line;
         }
 
-        vector<string> fullJustify(vector<string>& words, int maxWidth) {
+        vector<string> fullJustify(vector<string> &words, int maxWidth) {
             vector<string> result;
             vector<string> currentLine;
-            int currentLength = 0;  // Length of words (without spaces)
+            int currentLength = 0; // Length of words (without spaces)
 
-            for (const string& word : words) {
+            for (const string &word: words) {
                 // Check if adding this word exceeds maxWidth
                 // currentLength + currentLine.size() accounts for minimum spaces between words
                 if (currentLength + currentLine.size() + word.length() > maxWidth) {
@@ -130,7 +130,6 @@ namespace Solution {
             return result;
         }
     }
-
 }
 
 int main(int argc, char *argv[]) {
