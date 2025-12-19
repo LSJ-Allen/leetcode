@@ -6,15 +6,17 @@
 #include <set>
 
 using namespace std;
+
 namespace Solution {
     namespace LRU {
         struct Node {
-            Node* next = nullptr;
-            Node* prev = nullptr;
+            Node *next = nullptr;
+            Node *prev = nullptr;
             int key;
             int val;
 
-            Node(int key, int value): key(key), val(value) {};
+            Node(int key, int value) : key(key), val(value) {
+            };
         };
 
         class LRUCache {
@@ -27,16 +29,16 @@ namespace Solution {
              * when a node is removed, it is removed from the hash map as well.
              */
         private:
-            std::unordered_map<int, Node*> map;
+            std::unordered_map<int, Node *> map;
             int maxCapacity = 0;
             // dummy head and tail node to handle edge cases
-            Node* head = new Node(0, 0);
-            Node* tail = new Node(0, 0);
+            Node *head = new Node(0, 0);
+            Node *tail = new Node(0, 0);
 
-            void remove(Node* node) {
+            void remove(Node *node) {
                 // remove a node
-                Node* prev = node->prev;
-                Node* next = node->next;
+                Node *prev = node->prev;
+                Node *next = node->next;
 
                 // remove node from the link
                 prev->next = next;
@@ -47,13 +49,13 @@ namespace Solution {
                 delete node;
             }
 
-            void insert(Node* newNode, Node* node) {
+            void insert(Node *newNode, Node *node) {
                 // insert a new node at node's position
                 // prev -> node -> next
                 //              ^
                 //          insert here
 
-                Node* next = node->next;
+                Node *next = node->next;
                 node->next = newNode;
                 newNode->prev = node;
 
@@ -64,14 +66,14 @@ namespace Solution {
                 map[newNode->key] = newNode;
             }
 
-            void move(Node* n1, Node* n2) {
+            void move(Node *n1, Node *n2) {
                 if (n1 == n2) {
                     return;
                 }
                 // move n1 to n2's next
-                Node* n1_prev = n1->prev;
-                Node* n1_next = n1->next;
-                Node* n2_next = n2->next;
+                Node *n1_prev = n1->prev;
+                Node *n1_next = n1->next;
+                Node *n2_next = n2->next;
 
                 // place n1
                 n2->next = n1;
@@ -105,7 +107,7 @@ namespace Solution {
             void put(int key, int value) {
                 // if key exists, placed it at head.
                 if (map.contains(key)) {
-                    Node* existingNode = map[key];
+                    Node *existingNode = map[key];
                     existingNode->val = value;
                     this->move(existingNode, this->tail->prev);
                     return;
@@ -117,24 +119,24 @@ namespace Solution {
                 }
 
                 // if key does not exist
-                Node* newNode = new Node(key, value);
+                Node *newNode = new Node(key, value);
                 this->insert(newNode, this->tail->prev);
             }
 
 
             // destructor
             ~LRUCache() {
-                Node* curr = head;
+                Node *curr = head;
                 while (curr) {
-                    Node* next = curr->next;
+                    Node *next = curr->next;
                     delete curr;
                     curr = next;
                 }
             }
         };
-
     }
 }
+
 int main() {
     Solution::LRU::LRUCache cache = Solution::LRU::LRUCache(2);
     cache.get(2);
