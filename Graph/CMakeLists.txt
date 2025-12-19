@@ -1,0 +1,83 @@
+# ============================================================================
+# Auto-configure for current directory
+# ============================================================================
+# Get the current directory name to use as prefix for targets
+get_filename_component(CURRENT_DIR_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+
+# ============================================================================
+# Handle main.cpp in current directory
+# ============================================================================
+if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+    # Create executable for this directory's main.cpp
+    add_executable(${CURRENT_DIR_NAME} "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+
+    # Find all source files (excluding main.cpp)
+    file(GLOB CURRENT_SOURCES
+            "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/*.cc"
+            "${CMAKE_CURRENT_SOURCE_DIR}/*.cxx"
+    )
+    list(FILTER CURRENT_SOURCES EXCLUDE REGEX ".*main\\.cpp$")
+
+    # Find all header files
+    file(GLOB CURRENT_HEADERS
+            "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
+            "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
+            "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx"
+    )
+
+    # Add sources and headers to the executable
+    if (CURRENT_SOURCES OR CURRENT_HEADERS)
+        target_sources(${CURRENT_DIR_NAME} PRIVATE ${CURRENT_SOURCES} ${CURRENT_HEADERS})
+    endif ()
+
+    # Add test for this executable
+    add_test(NAME ${CURRENT_DIR_NAME} COMMAND ${CURRENT_DIR_NAME})
+
+    message(STATUS "  Added executable: ${CURRENT_DIR_NAME}")
+endif ()
+
+# ============================================================================
+# Auto-discover and handle nested subdirectories
+# ============================================================================
+file(GLOB NESTED_SUBDIRS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} */)
+foreach (NESTED_SUBDIR ${NESTED_SUBDIRS})
+    set(NESTED_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${NESTED_SUBDIR}")
+
+    # Check if it's a directory and has main.cpp
+    if (IS_DIRECTORY ${NESTED_PATH} AND EXISTS "${NESTED_PATH}/main.cpp")
+        # Get nested directory name
+        get_filename_component(NESTED_DIR_NAME ${NESTED_SUBDIR} NAME)
+
+        # Create target name: parent_child (e.g., array_interval)
+        set(TARGET_NAME "${CURRENT_DIR_NAME}_${NESTED_DIR_NAME}")
+
+        # Create executable
+        add_executable(${TARGET_NAME} "${NESTED_PATH}/main.cpp")
+
+        # Find all source files (excluding main.cpp)
+        file(GLOB NESTED_SOURCES
+                "${NESTED_PATH}/*.cpp"
+                "${NESTED_PATH}/*.cc"
+                "${NESTED_PATH}/*.cxx"
+        )
+        list(FILTER NESTED_SOURCES EXCLUDE REGEX ".*main\\.cpp$")
+
+        # Find all header files
+        file(GLOB NESTED_HEADERS
+                "${NESTED_PATH}/*.h"
+                "${NESTED_PATH}/*.hpp"
+                "${NESTED_PATH}/*.hxx"
+        )
+
+        # Add sources and headers
+        if (NESTED_SOURCES OR NESTED_HEADERS)
+            target_sources(${TARGET_NAME} PRIVATE ${NESTED_SOURCES} ${NESTED_HEADERS})
+        endif ()
+
+        # Add test
+        add_test(NAME ${TARGET_NAME} COMMAND ${TARGET_NAME})
+
+        message(STATUS "  Added nested executable: ${TARGET_NAME}")
+    endif ()
+endforeach ()

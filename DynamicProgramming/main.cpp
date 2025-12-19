@@ -4,6 +4,7 @@
 #include <queue>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
 using namespace std;
 
@@ -149,10 +150,121 @@ namespace Solution {
         // must not hold on last day for best result, thus max between sold and rest
         return max(rest[n - 1], sold[n - 1]);
     }
+
+    // 1931. Painting a Grid With Three Different Colors
+    int colorTheGrid(int m, int n) {
+        /**
+         * Approach:
+         *
+         * State encoding:
+         * Imagine each column is an m digit ternary number where each digit represents the color of that
+         * cell. Red: 0, Green: 1, Blue: 2. A row of length 5 [R G R G R] would be [0 1 0 1 0].
+         * Thus there are total 3^m such combinations, and we can use an integer mask in range [0,3^m - 1) to
+         * represent each combination. Due to the same-color-not-adjacent constraint, the number of valid combinations is
+         * actually 3*2^(m-1).
+         *
+         * State Transition:
+         * To verify a valid state transition, need to check if any digits of the same significance have the same
+         * value between the current column and the previous column.
+         *
+         * Implementation:
+         * 2D dp of dimension n * 3^m. dp[i][mask] represents the number of ways to color column i whose coloring
+         * scheme is represented by the integer mask.
+         * dp[i][mask] = sum([dp[i-1][valid_mask] for valid_mask in range(0, 3^m) and valid_mask can be adjacent);
+         * The final result is the sum of dp's last row.
+         *
+         * For easy access of states, use a hash table with key=mask and value = [valid colorings for next column]
+         * Since dp[i] is only dependent on dp[i-1] we can simplify this to a 1D dp.
+         */
+        const int mod = 1e9 + 7;
+        const int range = pow(3, m);
+        // step 1. find all valid colorings in [0, 3^m) and store their corresponding ternary representation
+        // O(3^m)
+        unordered_map<int, vector<int> > valid_colorings;
+
+        for (int mask = 0; mask < range; mask++) {
+            // get the ternary representation
+            vector<int> color;
+            int copy = mask;
+            for (int i = 0; i < m; i++) {
+                color.push_back(copy % 3);
+                copy /= 3;
+            }
+
+            // verify if the coloring scheme is correct
+            bool is_valid = true;
+            for (int i = 1; i < m; i++) {
+                if (color[i] == color[i - 1]) {
+                    is_valid = false;
+                    break;
+                }
+            }
+
+            if (is_valid) {
+                valid_colorings[mask] = move(color);
+            }
+        }
+
+        // step 2. create a hash map of all valid colorings and their respective valid neighbor states
+        // O((3^m)^2) = O(3^(2m))
+        unordered_map<int, vector<int> > valid_states_map;
+        for (const auto &[int_encoding, ternary_encoding]: valid_colorings) {
+            vector<int> valid_states;
+            for (const auto &[int_encoding_2, ternary_encoding_2]: valid_colorings) {
+                bool is_valid = true;
+                for (int i = 0; i < m; i++) {
+                    if (ternary_encoding[i] == ternary_encoding_2[i]) {
+                        is_valid = false;
+                        break;
+                    }
+                }
+
+                if (is_valid) {
+                    valid_states_map[int_encoding].push_back(int_encoding_2);
+                }
+            }
+        }
+
+        // step 3. start dp.
+        // 1D array to represent dp[i]
+        vector<int> dp(range);
+
+        // initialize dp[0], all valid encoding has value 1 because there is no previous states.
+        for (const auto &[int_encoding, _]: valid_colorings) {
+            dp[int_encoding] = 1;
+        }
+
+        // build dp from i = 1 to i = n
+        // O(n*(3^m)*(3^m)) = O(n*3^(2m))
+        for (int i = 1; i < n; i++) {
+            // represents dp[i]
+            vector<int> next(range);
+
+            // populate dp[i]
+            for (const auto &[int_encoding, _]: valid_colorings) {
+                // dp[i][mask] = sum of all valid neighbor states from dp[i-1]
+                int sum = 0;
+                for (int valid_neighbor: valid_states_map[int_encoding]) {
+                    sum = (sum + dp[valid_neighbor]) % mod;
+                }
+
+                next[int_encoding] = sum;
+            }
+
+            dp = move(next);
+        }
+
+        // calculate sum
+        int sum = 0;
+        for (int i: dp) {
+            sum = (sum + i) % mod;
+        }
+
+        return sum;
+    }
 }
 
 int main() {
-    vector<int> input = {1, 2, 3, 1};
-    Solution::rob(input);
+    int result = Solution::colorTheGrid(1, 1);
     return 0;
 }
