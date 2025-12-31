@@ -91,7 +91,7 @@ namespace Soution {
     // 1970. Last Day Where You can Still Cross
     namespace LastDay {
         // find operation in union find
-        int findRoot(vector<int>& parent, int x) {
+        int findRoot(vector<int> &parent, int x) {
             /**
              * example:
              * parent = [0, 0, 1] x = 2
@@ -115,7 +115,7 @@ namespace Soution {
             return parent[x];
         }
 
-        void unite(vector<int>& parent, vector<int>& rank, int x, int y) {
+        void unite(vector<int> &parent, vector<int> &rank, int x, int y) {
             int rootX = findRoot(parent, x);
             int rootY = findRoot(parent, y);
 
@@ -135,7 +135,7 @@ namespace Soution {
             }
         }
 
-        int latestDayToCross(int row, int col, vector<vector<int>>& cells) {
+        int latestDayToCross(int row, int col, vector<vector<int> > &cells) {
             /**
              * Approach:
              *
@@ -158,70 +158,71 @@ namespace Soution {
 
             // construct the initial graph from the last day, traverse days in reverse order
             // and remove flooded cells.
-            vector<vector<int>> grid(row, vector<int>(col, 0));
+            vector<vector<int> > grid(row, vector<int>(col, 0));
             int days = cells.size();
-            for (auto& coord : cells) {
+            for (auto &coord: cells) {
                 // turn into 0 based
                 coord[0] = coord[0] - 1;
                 coord[1] = coord[1] - 1;
                 grid[coord[0]][coord[1]] = 1;
             }
 
-            for (int day = cells.size() - 1; day >=0; day--) {
+            for (int day = cells.size() - 1; day >= 0; day--) {
                 // check if top row is connected to bottom row
                 for (int jTop = 0; jTop < col; jTop++) {
                     int rootTop = findRoot(parent, jTop);
                     if (grid[0][jTop] == 1) continue;
                     for (int jBot = 0; jBot < col; jBot++) {
-                        if (grid[row-1][jBot] == 1) continue;
-                        int rootBot = findRoot(parent, (row-1)*col+jBot);
+                        if (grid[row - 1][jBot] == 1) continue;
+                        int rootBot = findRoot(parent, (row - 1) * col + jBot);
                         if (rootBot == rootTop) {
                             // a connection is found, return days
-                            return day+1;
+                            return day + 1;
                         }
                     }
                 }
 
                 // remove flooded cell
-                const vector<int>& flooded = cells[day];
+                const vector<int> &flooded = cells[day];
                 int i = flooded[0], j = flooded[1];
                 grid[i][j] = 0;
 
                 // union the removed flooded cell with its neighbors
                 // top neighbor
-                if (i > 0 && grid[i-1][j] == 0) {
-                    unite(parent, rank, (i-1)*col+j, i*col+j);
+                if (i > 0 && grid[i - 1][j] == 0) {
+                    unite(parent, rank, (i - 1) * col + j, i * col + j);
                 }
 
                 // bot neighbor
-                if (i < row - 1 && grid[i+1][j] == 0) {
-                    unite(parent, rank, (i+1)*col+j, i*col+j);
+                if (i < row - 1 && grid[i + 1][j] == 0) {
+                    unite(parent, rank, (i + 1) * col + j, i * col + j);
                 }
 
                 // left
-                if (j > 0 && grid[i][j-1] == 0) {
-                    unite(parent, rank, i*col+j-1, i*col+j);
+                if (j > 0 && grid[i][j - 1] == 0) {
+                    unite(parent, rank, i * col + j - 1, i * col + j);
                 }
 
                 // right
-                if (j < col-1 && grid[i][j+1] == 0) {
-                    unite(parent, rank, i*col+j+1, i*col+j);
+                if (j < col - 1 && grid[i][j + 1] == 0) {
+                    unite(parent, rank, i * col + j + 1, i * col + j);
                 }
             }
             return 0;
         }
     }
-
 };
 
 int main() {
-    vector<vector<int>> cells = {{1,2},{2,1},{3,3},{2,2},{1,1},{1,3},{2,3},{3,2},{3,1}};
+    vector<vector<int> > cells = {{1, 2}, {2, 1}, {3, 3}, {2, 2}, {1, 1}, {1, 3}, {2, 3}, {3, 2}, {3, 1}};
     // cout << Soution::LastDay::latestDayToCross(3, 3, cells) << endl;
 
-    vector<vector<int>> cells2 = {{1,1},{2,1},{1,2},{2,2}};
+    vector<vector<int> > cells2 = {{1, 1}, {2, 1}, {1, 2}, {2, 2}};
     // cout << Soution::LastDay::latestDayToCross(2, 2, cells2);
 
-    vector<vector<int>> cells3 = {{4,2},{6,2},{2,1},{4,1},{6,1},{3,1},{2,2},{3,2},{1,1},{5,1},{5,2},{1,2}};
+    vector<vector<int> > cells3 = {
+        {4, 2}, {6, 2}, {2, 1}, {4, 1}, {6, 1}, {3, 1}, {2, 2}, {3, 2}, {1, 1}, {5, 1}, {5, 2}, {1, 2}
+    };
     cout << Soution::LastDay::latestDayToCross(6, 2, cells3);
     return 0;
 }
