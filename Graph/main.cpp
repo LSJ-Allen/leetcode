@@ -211,18 +211,197 @@ namespace Soution {
             return 0;
         }
     }
+
+    // 210. Course Schedule II
+    vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) {
+        /**
+         * Approach:
+         * The relation between courses is a directed acyclic graph with cources being
+         * nodes and prerequisites being edges. Therefore the problem becomes topological
+         * sorting all nodes.
+         *
+         * Topological sort Kahn's algorithm:
+         * 1. Calculate the in-degree for each vertex
+         * 2. Add all source vertices (in degree 0) to a queue
+         * 3. Pop from queue, add the vertex to the sorted result.
+         * 4. The vertex is now "removed" from the graph, decrease all of its neighbor's
+         * in degree by 1. If any neighbor's in-degrree is 0, add it to queue.
+         *
+         * If the graph contains a cycle, the sorted result would be smaller than the total
+         * number of vertices, this is because a cycle have non-zero indegrees that can never be reduced to 0
+         *
+         * Topological sort can also be performaed with dfs coloring method (white gray black):
+         * white means unvisited, gray means bring processed, black means all of the node's dependencies are
+         * processed (black).
+         * 1. At the start all nodes are unvisited. Start dfs at any unvisited node.
+         * 2. During dfs if arrived at a white node, mark it gray and keep dfs. If arrived at a gray node,
+         * it means a cycle is detected. If arrived at a black node, it means this node is fully processed,
+         * and we can safely skip this node.
+         * 3. add a node to result when we color it black.
+         * The end result is a reversely sorted topological order.
+         */
+
+        vector<int> inDegrees(numCourses, 0);
+
+        // build an adjacency list
+        vector<vector<int>> adj(numCourses);
+
+        for (const auto& edge : prerequisites) {
+            adj[edge[1]].push_back(edge[0]);
+            // populate in degree at the same time
+            inDegrees[edge[0]]++;
+        }
+
+        // add in degree 0 vertex into a queue
+        queue<int> q;
+        for (int vertex = 0; vertex < numCourses; vertex++) {
+            if (inDegrees[vertex] == 0) {
+                q.push(vertex);
+            }
+        }
+
+        vector<int> result;
+        // starting removing source nodes
+        while (!q.empty()) {
+            int vertex = q.front();
+            q.pop();
+            result.push_back(vertex);
+
+            // decrease indegree of all neighbors
+            for (int neighbor : adj[vertex]) {
+                inDegrees[neighbor]--;
+                if (inDegrees[neighbor] == 0) {
+                    q.push(neighbor);
+                }
+            }
+        }
+
+        // if result has diff size than numCourses, graph contains cycle
+        if (result.size() != numCourses) {
+            return {};
+        }
+
+        return result;
+    }
+
+    namespace Surrounded {
+        // union find helper to find the root of an element
+        int findRoot (vector<int>& parent, int x) {
+            // path compression
+            if (parent[x] != x) {
+                parent[x] = findRoot(parent, parent[x]);
+            }
+
+            return parent[x];
+        }
+
+        // unite x and y into one group
+        void unite (vector<int>& rank, vector<int>& parent, int x, int y) {
+            int rootX = findRoot(parent, x);
+            int rootY = findRoot(parent, y);
+
+            if (rootX == rootY) return;
+
+            // merge by rank
+            // all merge should happen at root level
+            if (rank[rootX] < rank[rootY]) {
+                // merge x into Y
+                parent[rootX] = rootY;
+            } else if (rank[rootX] > rank[rootY]) {
+                // merge y into x
+                parent[rootY] = rootX;
+            } else {
+                parent[rootX] = rootY;
+                rank[rootY]++;
+            }
+        }
+
+        // 130. Surrounded Regions
+        void solve(vector<vector<char>>& board) {
+            /**
+             * Approach:
+             *
+             * A region is surrounded if it is disconnected from the edge. Use union find algorithm
+             * to find out which of the disconnected region is connected to an edge, and mark the
+             * rest to X.
+             *
+             * In the union find algorithm, use a dummy parent edge to unite all components that is touch
+             * an edge so we can easily find out if a cell is in an edge group by checking its
+             * parent.
+             */
+            int m = board.size(), n = board[0].size();
+
+            // inite parent and rank array for union find
+            // parent contains m*n+1 elements because the last one is reserved for the dummy edge parent.
+            vector<int> parent(m*n+1);
+            vector<int> rank(m*n+1, 0);
+            for (int i = 0; i < parent.size(); i++) {
+                parent[i] = i;
+            }
+
+            // iterate the board to build the union find trees
+            for (int i = 0; i < m; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (board[i][j] == 'X') {
+                        continue;
+                    }
+
+                    // if on edge, unite with the edge parent
+                    if (i == 0 || i == m-1 || j == 0 || j == n-1) {
+                        unite(rank, parent, i*n+j, m*n);
+                    }
+
+                    // check 4 neighbors
+                    // top
+                    if (i > 0 && board[i-1][j] == 'O') {
+                        unite(rank, parent, i*n+j, (i-1)*n+j);
+                    }
+
+                    // bot
+                    if (i < m-1 && board[i+1][j] == 'O') {
+                        unite(rank, parent, i*n+j, (i+1)*n+j);
+                    }
+
+                    // left
+                    if (j > 0 && board[i][j-1] == 'O') {
+                        unite(rank, parent, i*n+j, i*n+j-1);
+                    }
+
+                    // right
+                    if (j < n-1 && board[i][j+1] == 'O') {
+                        unite(rank, parent, i*n+j, i*n+j+1);
+                    }
+                }
+            }
+
+            // iterate the board again to turn all 'O' that does not belong to the edge group to 'X'
+            for (int i = 0; i < m; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (board[i][j] == 'X') continue;
+                    if (findRoot(parent, i*n+j) != findRoot(parent, m*n)) {
+                        board[i][j] = 'X';
+                    }
+                }
+            }
+        }
+    }
+
 };
 
 int main() {
-    vector<vector<int> > cells = {{1, 2}, {2, 1}, {3, 3}, {2, 2}, {1, 1}, {1, 3}, {2, 3}, {3, 2}, {3, 1}};
-    // cout << Soution::LastDay::latestDayToCross(3, 3, cells) << endl;
-
-    vector<vector<int> > cells2 = {{1, 1}, {2, 1}, {1, 2}, {2, 2}};
-    // cout << Soution::LastDay::latestDayToCross(2, 2, cells2);
-
-    vector<vector<int> > cells3 = {
-        {4, 2}, {6, 2}, {2, 1}, {4, 1}, {6, 1}, {3, 1}, {2, 2}, {3, 2}, {1, 1}, {5, 1}, {5, 2}, {1, 2}
+    vector<vector<char>> board = {
+        {'X','O','X','O','X','O','O','O','X','O'}, // 0
+        {'X','O','O','X','X','X','O','O','O','X'}, // 1
+        {'O','O','O','O','O','O','O','O','X','X'}, // 2
+        {'O','O','O','O','O','O','X','O','O','X'}, // 3
+        {'O','O','X','X','O','X','X','O','O','O'}, // 4
+        {'X','O','O','X','X','X','O','X','X','O'}, // 0
+        {'X','O','X','O','O','X','X','O','X','O'}, // 6
+        {'X','X','O','X','X','O','X','O','O','X'}, // 7
+        {'O','O','O','O','X','O','X','O','X','O'}, // 8
+        {'X','X','O','X','X','X','X','O','O','O'}  // 9
+        //   0   1   2   3   4   5   6   7   8   9
     };
-    cout << Soution::LastDay::latestDayToCross(6, 2, cells3);
+    Soution::Surrounded::solve(board);
     return 0;
 }
