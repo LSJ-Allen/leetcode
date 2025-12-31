@@ -213,7 +213,7 @@ namespace Soution {
     }
 
     // 210. Course Schedule II
-    vector<int> findOrder(int numCourses, vector<vector<int>>& prerequisites) {
+    vector<int> findOrder(int numCourses, vector<vector<int> > &prerequisites) {
         /**
          * Approach:
          * The relation between courses is a directed acyclic graph with cources being
@@ -244,9 +244,9 @@ namespace Soution {
         vector<int> inDegrees(numCourses, 0);
 
         // build an adjacency list
-        vector<vector<int>> adj(numCourses);
+        vector<vector<int> > adj(numCourses);
 
-        for (const auto& edge : prerequisites) {
+        for (const auto &edge: prerequisites) {
             adj[edge[1]].push_back(edge[0]);
             // populate in degree at the same time
             inDegrees[edge[0]]++;
@@ -268,7 +268,7 @@ namespace Soution {
             result.push_back(vertex);
 
             // decrease indegree of all neighbors
-            for (int neighbor : adj[vertex]) {
+            for (int neighbor: adj[vertex]) {
                 inDegrees[neighbor]--;
                 if (inDegrees[neighbor] == 0) {
                     q.push(neighbor);
@@ -286,7 +286,7 @@ namespace Soution {
 
     namespace Surrounded {
         // union find helper to find the root of an element
-        int findRoot (vector<int>& parent, int x) {
+        int findRoot(vector<int> &parent, int x) {
             // path compression
             if (parent[x] != x) {
                 parent[x] = findRoot(parent, parent[x]);
@@ -296,7 +296,7 @@ namespace Soution {
         }
 
         // unite x and y into one group
-        void unite (vector<int>& rank, vector<int>& parent, int x, int y) {
+        void unite(vector<int> &rank, vector<int> &parent, int x, int y) {
             int rootX = findRoot(parent, x);
             int rootY = findRoot(parent, y);
 
@@ -317,7 +317,7 @@ namespace Soution {
         }
 
         // 130. Surrounded Regions
-        void solve(vector<vector<char>>& board) {
+        void solve(vector<vector<char> > &board) {
             /**
              * Approach:
              *
@@ -333,8 +333,8 @@ namespace Soution {
 
             // inite parent and rank array for union find
             // parent contains m*n+1 elements because the last one is reserved for the dummy edge parent.
-            vector<int> parent(m*n+1);
-            vector<int> rank(m*n+1, 0);
+            vector<int> parent(m * n + 1);
+            vector<int> rank(m * n + 1, 0);
             for (int i = 0; i < parent.size(); i++) {
                 parent[i] = i;
             }
@@ -347,29 +347,29 @@ namespace Soution {
                     }
 
                     // if on edge, unite with the edge parent
-                    if (i == 0 || i == m-1 || j == 0 || j == n-1) {
-                        unite(rank, parent, i*n+j, m*n);
+                    if (i == 0 || i == m - 1 || j == 0 || j == n - 1) {
+                        unite(rank, parent, i * n + j, m * n);
                     }
 
                     // check 4 neighbors
                     // top
-                    if (i > 0 && board[i-1][j] == 'O') {
-                        unite(rank, parent, i*n+j, (i-1)*n+j);
+                    if (i > 0 && board[i - 1][j] == 'O') {
+                        unite(rank, parent, i * n + j, (i - 1) * n + j);
                     }
 
                     // bot
-                    if (i < m-1 && board[i+1][j] == 'O') {
-                        unite(rank, parent, i*n+j, (i+1)*n+j);
+                    if (i < m - 1 && board[i + 1][j] == 'O') {
+                        unite(rank, parent, i * n + j, (i + 1) * n + j);
                     }
 
                     // left
-                    if (j > 0 && board[i][j-1] == 'O') {
-                        unite(rank, parent, i*n+j, i*n+j-1);
+                    if (j > 0 && board[i][j - 1] == 'O') {
+                        unite(rank, parent, i * n + j, i * n + j - 1);
                     }
 
                     // right
-                    if (j < n-1 && board[i][j+1] == 'O') {
-                        unite(rank, parent, i*n+j, i*n+j+1);
+                    if (j < n - 1 && board[i][j + 1] == 'O') {
+                        unite(rank, parent, i * n + j, i * n + j + 1);
                     }
                 }
             }
@@ -378,28 +378,27 @@ namespace Soution {
             for (int i = 0; i < m; i++) {
                 for (int j = 0; j < n; j++) {
                     if (board[i][j] == 'X') continue;
-                    if (findRoot(parent, i*n+j) != findRoot(parent, m*n)) {
+                    if (findRoot(parent, i * n + j) != findRoot(parent, m * n)) {
                         board[i][j] = 'X';
                     }
                 }
             }
         }
     }
-
 };
 
 int main() {
-    vector<vector<char>> board = {
-        {'X','O','X','O','X','O','O','O','X','O'}, // 0
-        {'X','O','O','X','X','X','O','O','O','X'}, // 1
-        {'O','O','O','O','O','O','O','O','X','X'}, // 2
-        {'O','O','O','O','O','O','X','O','O','X'}, // 3
-        {'O','O','X','X','O','X','X','O','O','O'}, // 4
-        {'X','O','O','X','X','X','O','X','X','O'}, // 0
-        {'X','O','X','O','O','X','X','O','X','O'}, // 6
-        {'X','X','O','X','X','O','X','O','O','X'}, // 7
-        {'O','O','O','O','X','O','X','O','X','O'}, // 8
-        {'X','X','O','X','X','X','X','O','O','O'}  // 9
+    vector<vector<char> > board = {
+        {'X', 'O', 'X', 'O', 'X', 'O', 'O', 'O', 'X', 'O'}, // 0
+        {'X', 'O', 'O', 'X', 'X', 'X', 'O', 'O', 'O', 'X'}, // 1
+        {'O', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'X', 'X'}, // 2
+        {'O', 'O', 'O', 'O', 'O', 'O', 'X', 'O', 'O', 'X'}, // 3
+        {'O', 'O', 'X', 'X', 'O', 'X', 'X', 'O', 'O', 'O'}, // 4
+        {'X', 'O', 'O', 'X', 'X', 'X', 'O', 'X', 'X', 'O'}, // 0
+        {'X', 'O', 'X', 'O', 'O', 'X', 'X', 'O', 'X', 'O'}, // 6
+        {'X', 'X', 'O', 'X', 'X', 'O', 'X', 'O', 'O', 'X'}, // 7
+        {'O', 'O', 'O', 'O', 'X', 'O', 'X', 'O', 'X', 'O'}, // 8
+        {'X', 'X', 'O', 'X', 'X', 'X', 'X','O','O','O'}  // 9
         //   0   1   2   3   4   5   6   7   8   9
     };
     Soution::Surrounded::solve(board);
