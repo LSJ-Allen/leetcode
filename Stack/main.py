@@ -100,10 +100,52 @@ class Solution:
             max_area = max(largestRectangleArea(histograms[i]), max_area)
         
         return max_area
+    
+    # 221. Maximal Square
+    def maximalSquare(self, matrix: List[List[str]]) -> int:
+        """
+        Approach:
+
+        2d dp with same dimension as input matrix, dp[i][j] stores the side length of the rectangle
+        with it's bottom right corner at i,j. This info tells us how many "1"s are on top and 
+        how many "1"s are left
+
+        Subproblem, calculate current square size based on the square on top, on left, and on top left corner
+        dp[i][j] = 1 + min(top, left, top left)
+        """
+        m, n = len(matrix), len(matrix[0])
+        dp = [[0] * n for _ in range(m)]
+
+        # track max width
+        max_width = 0
+
+        # init first row and first column
+        for j in range(n):
+            dp[0][j] = 0 if matrix[0][j] == "0" else 1
+            max_width = max(dp[0][j], max_width)
         
+        for i in range(m):
+            dp[i][0] = 0 if matrix[i][0] == "0" else 1
+            max_width = max(dp[i][0], max_width)
+
+        # populate dp and keep track of max square
+        for i in range(1, m):
+            for j in range(1, n):
+                if matrix[i][j] == "0":
+                    dp[i][j] = 0
+                else:
+                    dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])
+                    max_width = max(dp[i][j], max_width)
+        
+        return max_width**2
+                    
 def main():
     s = Solution()
-    print(s.maximalRectangle([["1"]]))
+    print(s.maximalSquare([["1","1","1","1","0"],
+                           ["1","1","1","1","0"],
+                           ["1","1","1","1","1"],
+                           ["1","1","1","1","1"],
+                           ["0","0","1","1","1"]]))
 
 if __name__ == "__main__":
     main()
