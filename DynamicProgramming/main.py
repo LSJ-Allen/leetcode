@@ -174,10 +174,97 @@ class Solution:
                 else:
                     dp[i][j] = min(topLeftVal, topVal, LeftVal) + 1
         return dp[m][n]
+    
+    # 123. Best Time to Buy and Sell Stock III
+    def maxProfit(self, prices: List[int]) -> int:
+        """
+        Dp with state machine similar to other buying stock problems
+        have 1 dp array for each state, dp[i] = max profit ending in that state at day i
 
+        States:
+        buy1, sell1, buy2, sell2
+
+        Transitions:
+        buy1 -> buy1: keep holding
+        start -> buy1: purchase first stock
+
+        sell1 -> sell1: do not buy
+        buy1 -> sell1: sell
+
+        sell1 -> buy2: purchase 2nd stock
+        buy2 -> buy2: keep holding 2nd
+
+        buy2 -> sell2: sell 2nd stock
+        sell2 -> sell2: keep the previous sell state
+
+        buy1[0] = -prices[0]
+        buy2[0] = - prices[0]
+        to represent impossible state
+        
+        example:
+        prices = [3,3,5,0,0,3,1,4]
+        b1 = [-3, -3, -3]
+        s1 = [0, 0, 2]
+        b2 = [-3, -3, -3,]
+        s2 = [0, 0, 2]
+
+        # only need 4 variables because the current state is only dependent on previous one,
+        # don't need to track earlier ones
+        """
+
+        b1 = -prices[0]
+        s1 = 0
+        b2 = -prices[0]
+        s2 = 0
+        for i in range(1, len(prices)):
+            b1 = max(b1, -prices[i])
+            s1 = max(s1, b1 + prices[i])
+            b2 = max(b2, s1 - prices[i])
+            s2 = max(s2, b2 + prices[i])
+        
+        return s2
+    
+    # 188. Best Time to Buy and Sell Stock IV
+    def maxProfit2(self, k: int, prices: List[int]) -> int:
+        """
+        Approach:
+
+        Extension from #123. Here we track 2k states (k buy states and k sell states)
+
+        States:
+        buy_k
+        sell_k
+
+        Transition:
+        sell_(k-1) -> buy_k
+        buy_k -> buy_k
+
+        buy_k -> sell_k
+        sell_k -> sell_k
+        """
+
+        # init state at time 0
+        # all buy state at 0 would be -prices[0] cuz the only possible way to enter buy state at 0
+        # is to buy the stock
+        # all sell states at 0 are 0 because the only possible way to enter sell state is to sell
+        # at the same price
+        buyStates = [-prices[0]] * k
+        sellStates = [0] * k
+
+        for i in range(1, len(prices)):
+            # update buy1 and sell1
+            buyStates[0] = max(buyStates[0], -prices[i])
+            sellStates[0] = max(sellStates[0], buyStates[0] + prices[i])
+
+            # update the subsequent states
+            for j in range(1, k):
+                buyStates[j] = max(buyStates[j], sellStates[j-1] - prices[i])
+                sellStates[j] = max(sellStates[j], buyStates[j] + prices[i])
+
+        return sellStates[k-1]
 def main():
     s = Solution()
-    print(s.minDistance("horse", "ros"))
+    print(s.maxProfit2(2, [3,3,5,0,0,3,1,4]))
 
 if __name__ == "__main__":
     main()
