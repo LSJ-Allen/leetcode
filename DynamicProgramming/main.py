@@ -1,4 +1,7 @@
 from typing import *
+from collections import defaultdict
+import functools
+
 class Solution:
     def lengthOfLIS(self, nums: List[int]) -> int:
         """
@@ -262,9 +265,92 @@ class Solution:
                 sellStates[j] = max(sellStates[j], buyStates[j] + prices[i])
 
         return sellStates[k-1]
+    
+    def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+        """
+        Approach:
+
+        This problem is the string counter part of the problem coin change. Imagine the string is the
+        total amount and wordDict contains "coins"
+
+        1D dp. dp[i] = whether the string s[0:i+1] can be segmented. For each i we iterate through word Dict
+        to find a case such that the string slice s[0:i+1] ends with the word and dp[i-wordlen] is true
+        """
+
+        dp = [False] * len(s)
+
+        for i in range(0, len(s)):
+            for word in wordDict:
+                if i < len(word) - 1:
+                    continue
+                
+                
+                if i == len(word) - 1:
+                    dp[i] = s[0:i+1] == word or dp[i]
+                else:
+                    dp[i] = s[0:i+1].endswith(word) and dp[i-len(word)] or dp[i]
+                
+        return dp[-1]
+
+    # 1230. Toss Strange Coins
+    def probabilityOfHeads(self, prob: List[float], target: int) -> float:
+        """
+        Approach:
+
+        Binomial distribution but each coin has different probability.
+        The probability of one instance of exactly k coins facing up is equal to the product of all elements in
+        the subsequence of prob with size k multiply the product of 1-element of subsequence of size
+        n-k
+
+        There are nCk different subsequences with size k. THe total probability is the sum of all k instances.
+
+        Subproblem:
+        """
+        pass
+
+    def deleteAndEarn(self, nums: List[int]) -> int:
+        """
+        Approach:
+
+        1d dp.
+        state variable: num, a unique number in nums
+        dp function: maxPoints(num) return the maximum points that we can gain if we 
+        only consider  all elemnts in nums between 0 and num
+
+        recurrence relation:
+        maxPoints(x) = max(maxPoints(x-1), maxPoints(x-2) + gain)
+        gain = # of occurrences of x * x
+
+        base case:
+        maxPoints(0) = 0
+        maxPoints(1) = # of 1s
+
+        The result would be maxPoints(max Num)
+        """
+        points = defaultdict(int)
+        maxNumber = 0
+        for num in nums:
+            points[num] += num
+            maxNumber = max(maxNumber, num)
+
+        @functools.cache
+        def maxPoints(num):
+            # base case
+            if num == 0:
+                return 0
+            
+            if num == 1:
+                return points[1]
+            
+            return max(maxPoints(num - 1), maxPoints(num - 2) + points[num])
+        
+        return maxPoints(maxNumber)
+        
+
+
 def main():
     s = Solution()
-    print(s.maxProfit2(2, [3,3,5,0,0,3,1,4]))
+    print(s.deleteAndEarn([3,1]))
 
 if __name__ == "__main__":
     main()
