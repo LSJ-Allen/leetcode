@@ -471,11 +471,102 @@ class Solution:
                     dp[words[i]] = max(dp[words[i]], 1 + dp[predecessor])
                     longest = max(longest, dp[words[i]])
         return longest
-        
+    
+    # 276. Paint Fence
+    def numWays(self, n: int, k: int) -> int:
+        """
+        Approach:
 
+        dp
+        1. start var: i to represent ith post
+            dp(i) = # of ways to paint ith post
+        2. To paint i, there a in total k* dp(i-1) ways, but not all of them are legal
+        If i-1 and i is not same color, we can proceed without worrying breaking the law.
+        That gives us (k-1) * dp(i-1) ways. If i-1 and i is same color, we need to make sure i-2
+        and i-1 is not the same color. How many ways to paint i-2 with different color than
+        i-1? (k-1)*dp(i-2).
+            dp(i) = (k-1)*(dp(i-1) + dp(i-2))
+        3. dp[0] = k dp(1) = k^2
+        """
+        # edge case
+        if n == 1:
+            return k
+        
+        dp = [0] * n
+        dp[0] = k
+        dp[1] = k**2
+
+        for i in range(2, n):
+            dp[i] = (k-1)*(dp[i-1] + dp[i-2])
+
+        return dp[-1]
+    
+    # 91. Decode Ways
+    def numDecodings(self, s: str) -> int:
+        """
+        Approach:
+
+        dp 
+        1. let i be the first i chars, dp(i) = # of ways to decode first i chars
+        2. for a char, it can be intepreted as a single encoding or double encoding with prev char
+            for single: # of ways to decode is dp(i-1)
+            for double: # of ways to decode is dp(i-2)
+            
+            dp(i) = dp(i-1) if single encoding is valid + dp(i-2) if double encoding is valid
+
+        3. base case dp(0) = 1, decoding empty string returns empty decode, it's still 1
+        way of decoding
+            dp(1) = 1
+        """
+        # edge case
+        if s[0] == "0":
+            return 0
+        if "00" in s:
+            return 0
+        dp = [0] * (len(s) + 1)
+        
+        # base case
+        dp[0] = 1
+        dp[1] = 1
+
+        def isValid(s: str):
+            return int(s) <= 26 and int(s) >= 10
+        
+        for i in range(2, len(s) + 1):
+            doubleEncoding = s[i-2] + s[i-1]
+            dp[i] = (dp[i-1] if s[i-1] != "0" else 0) + (dp[i-2] if isValid(doubleEncoding) else 0)
+            
+        return dp[-1]
+
+    # 1626 Best Team With No Conflicts
+    def bestTeamScore(self, scores: List[int], ages: List[int]) -> int:
+        # sort based on ages
+        arr = list(zip(scores, ages))
+        arr.sort(key=lambda x: (x[1], x[0]))
+
+        n = len(arr)
+        dp = [0] * n
+
+        # base case
+        dp[0] = arr[0][0]
+
+        for i in range(1, n):
+            # the min value of dp[i] is score[i]
+            dp[i] = arr[i][0]
+
+            # check all possible sub sequences
+            for j in range(0, i):
+                # skip if current score is smaller
+                if arr[i][0] < arr[j][0]:
+                    continue
+
+                dp[i] = max(dp[i], arr[i][0] + dp[j])
+        
+        return max(dp)
+    
 def main():
     s = Solution()
-    print(s.longestStrChain(["xbc","pcxbcf","xb","cxbc","pcxbc"]))
+    print(s.bestTeamScore([319776,611683,835240,602298,430007,574,142444,858606,734364,896074], [1,1,1,1,1,1,1,1,1,1]))
 
 if __name__ == "__main__":
     main()
