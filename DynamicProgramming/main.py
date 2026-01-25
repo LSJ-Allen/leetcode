@@ -297,16 +297,24 @@ class Solution:
         """
         Approach:
 
-        Binomial distribution but each coin has different probability.
-        The probability of one instance of exactly k coins facing up is equal to the product of all elements in
-        the subsequence of prob with size k multiply the product of 1-element of subsequence of size
-        n-k
-
-        There are nCk different subsequences with size k. THe total probability is the sum of all k instances.
-
-        Subproblem:
+        1. state variables: i, the first i coins. j: number of heads
+            dp[i][j] = the probability of obtaining j heads using the first i coins
+            dp[-1][-1] solves the problem
+        2. dp[i][j] = dp[i - 1][j - 1] * prob[i - 1] + dp[i - 1][j] * (1 - prob[i - 1])
+        3. first row contains 0, can't get probability with 0 coin
         """
-        pass
+        n = len(prob)
+        dp = [[0] * (target + 1) for _ in range(n + 1)]
+        dp[0][0] = 1
+
+        for i in range(1, n + 1):
+            dp[i][0] = dp[i - 1][0] * (1 - prob[i - 1])
+            for j in range(1, target + 1):
+                if j > i:
+                    break
+                dp[i][j] = dp[i - 1][j - 1] * prob[i - 1] + dp[i - 1][j] * (1 - prob[i - 1])
+
+        return dp[n][target]
 
     def deleteAndEarn(self, nums: List[int]) -> int:
         """
@@ -346,11 +354,128 @@ class Solution:
         
         return maxPoints(maxNumber)
         
+    def maximumScore(self, nums: List[int], multipliers: List[int]) -> int:
+        """
+        Approach:
 
+        dp cuz asking for maximum value and future state depend on present decisions,'
+        ie. if we choose left now, it can't be used in the future anymore
+
+        1. Find hte function that will compute the anser for a given state.
+            states: need to know the following to desribe a state
+            1. the multiplier we are using, state var: i
+            2. the left index of the left most element remaining in nums
+            3. the right index of the right most eledment remaining in nums
+            we can calculate right = n - (i-left) - 1 so we only have 2 independent state 
+            variables: i, left
+
+            dp(i, left) = max possible score if we have used i multipliers and have picked left #
+            of elements from the left side.
+
+            to answer the problem return dp(0,0), the max possible score if we haven't done
+            anything yet and have all the multiplers and elements from nums to use.
+
+            Note that we use left to track the index of the left most element instead of 
+            actually removing the element
+
+        2. Recurrence Relation:
+            leftGain = multi[i] * nums[left] + dp(i+1, left+1)
+            rightGain = multi[i] * nums[right] + dp(i+1, left)
+            dp(i, left) = max(leftGain, rightGain)
+        
+        3. Base case, dp(m, left) = 0. If i == m, we have no operations left and can not gain
+        any score.
+
+        Bottom up approach:
+        i: range [0, m]
+        left: range[0, m]
+
+        dp size = (m+1)*(m+1) with the last row being 0 to reflect dp(m, left) = 0 for any left
+        value
+
+        fill dp table from last row to top
+        """
+        n, m = len(nums), len(multipliers)
+
+        # create dp and initialize the last row
+        dp = [[0] * (m+1) for _ in range(m + 1)]
+
+        # i start from the second last row
+        for i in range(m - 1, -1, -1):
+            # left index cannot be bigger than i, the dp array is a 
+            # triangle
+            for left in range(i, -1, -1):
+                mult = multipliers[i]
+                right = n - 1 - (i - left)
+                dp[i][left] = max(mult * nums[left] + dp[i+1][left+1], 
+                                  mult * nums[right] + dp[i+1][left])
+        return dp[0][0]
+
+    def minDifficulty(self, jobDifficulty: List[int], d: int) -> int:
+        # use a hash table to store function return
+        n = len(jobDifficulty)
+        @functools.cache
+        def dp(i : int, day: int) -> int:
+            # base case if day > i: this is a impossible state retrun -1
+            if day > i:
+                return -1
+            # base dp(0,0)
+            if i == 0:
+                if day == 0:
+                    return jobDifficulty[0]
+            
+            curDay = dp(i - 1, day)
+
+            if day == 0:
+                return max(curDay, jobDifficulty[i])
+            else:
+                prevDay = dp(i - 1, day - 1)
+                if curDay == -1:
+                    return prevDay + jobDifficulty[i]
+                else:
+                    return min(prevDay + jobDifficulty[i], max(curDay, jobDifficulty[i]))
+            
+        
+        return dp(n - 1, d - 1)
+    
+    # 1048. Lonagest String Chain
+    def longestStrChain(self, words: List[str]) -> int:
+        """
+        Approach
+
+        Longest subsequence of string chain, dp approach
+        the original order does not matter, sort the words by length in descending order
+
+        1. state variable i: ith word
+            dp[i] = longest sequence ends at word i in the sorted list
+            max dp gives the answer
+        2. At each state we need to decide whether we can add current word to a sequence.
+            dp[i] = 1 + max(dp[j]) for j in 0 to i-1 if j is ith predecessor
+        3. base case
+            dp[0] = 1
+            
+        """
+        words.sort(key=lambda x: len(x))
+        # use dict instead of array since we want to access ith word's predecessor in constant time
+        dp = {}
+        for word in words:
+            dp[word] = 1
+
+        longest = 1
+        for i in range(1, len(words)):
+            word = words[i]
+            # go through each possible predecessor obtained by removing 1 character
+            for j in range(len(word)):
+                predecessor = word[0:j] + word[j+1:]
+                if predecessor in dp:
+                    dp[words[i]] = max(dp[words[i]], 1 + dp[predecessor])
+                    longest = max(longest, dp[words[i]])
+        return longest
+        
 
 def main():
     s = Solution()
-    print(s.deleteAndEarn([3,1]))
+    print(s.longestStrChain(["xbc","pcxbcf","xb","cxbc","pcxbc"]))
 
 if __name__ == "__main__":
     main()
