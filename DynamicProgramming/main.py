@@ -564,9 +564,82 @@ class Solution:
         
         return max(dp)
     
+    # 1463. Cherry Pickup II
+    def cherryPickup(self, grid: List[List[int]]) -> int:
+        """
+        Approach:
+
+        multi-dimensinal dp
+        1. What info do we need to describe a given state?
+            need to know robot 1's position and robot 2's position. These robots will always be on the same row
+            so we need 3 state variables
+            i: ith row
+            j: r1's col
+            k: r2's col
+
+            dp[i][j][k] = max score of the state i j k
+            max dp[-1] gives the answer
+        2. Given state i j k, how prev states can we start and arriv e at i j k?
+            the row must be i-1 since we can not traverse on the same row.
+            for a given j, valid prev js are j - 1, j, j + 1
+            for k, valid prev ks are k-1, k, k+1
+            in total 9 valid prev states. We pick the best and start from there to arrive at i j k
+
+            dp[i][j][k] = max(prevStates) + grid[i][j] + grid[i][k]
+
+        3. Base case
+            dp[0][0][n-1] = grid[0][0] + grid[0][n-1]
+            for robot 1 i, j must be <= i, if j > i, it is an impossible state, return 0
+            for robot 2, i+k must >= n-1
+            
+        """
+        m, n = len(grid), len(grid[0])
+
+
+        # create a m*n*n matrix for dp
+        dp = [[[0] * n for j in range(n)] for i in range(m)]
+
+        # base case
+        dp[0][0][n-1] = grid[0][0] + grid[0][n-1]
+        for i in range(m):
+            for j in range(n):
+                for k in range(n):
+                    # j == k is a impossible state, skip
+                    if j == k:
+                        continue
+
+                    # robot 1 cannot across the i-j = 0 diagonal
+                    # and robot 2 cannot across the i+K = n-1 diagonal
+                    # if out of bounds continue
+                    if i - j < 0 or i + k  < n - 1:
+                        continue
+                    
+                    # recurrence relation, to arrive at current state i, j, k
+                    # there are 9 possible previous states with i-1
+                    # (j - 1, k + 1),(j, k + 1),(j + 1, k + 1)
+                    # (j - 1, k),(j, k),(j + 1, k)
+                    # (j - 1, k - 1),(j, k - 1),(j + 1, k - 1)
+                    prevStates = []
+
+                    for s in [j - 1, j, j + 1]:
+                        for t in [k - 1, k, k + 1]:
+                            if (s >= 0 and s < n) and (t >= 0 and t < n):
+                                prevStates.append(dp[i-1][s][t])
+
+
+                    dp[i][j][k] = max(prevStates) + grid[i][j] + grid[i][k]
+        
+        # find the max value on the last row
+        maxVal = 0
+        for j in range(n):
+            for k in range(n):
+                maxVal = max(dp[m-1][j][k], maxVal)
+        
+        return maxVal
+
 def main():
     s = Solution()
-    print(s.bestTeamScore([319776,611683,835240,602298,430007,574,142444,858606,734364,896074], [1,1,1,1,1,1,1,1,1,1]))
+    print(s.cherryPickup([[1,0,0,0,0,0,1],[2,0,0,0,0,3,0],[2,0,9,0,0,0,0],[0,3,0,5,4,0,0],[1,0,2,3,0,0,6]]))
 
 if __name__ == "__main__":
     main()
