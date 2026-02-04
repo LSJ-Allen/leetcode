@@ -1,5 +1,6 @@
 from typing import *
 from .tree_node import TreeNode
+from collections import deque
 class Solution:
     def subtreeWithAllDeepest(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
         """
@@ -30,6 +31,66 @@ class Solution:
         result, _ = dfs(root, 0)
         return result
     
+    def averageOfLevels(self, root: Optional[TreeNode]) -> List[float]:
+        """
+        Approach:
+
+        bfs with level traversing
+        """
+        queue = deque()
+        queue.append(root)
+
+        averageValues = []
+
+        while len(queue) > 0:
+            total = 0
+            levelSize = len(queue)
+            for i in range(levelSize):
+                node = queue.popleft()
+                total += node.val
+                
+                if node.left is not None:
+                    queue.append(node.left)
+                if node.right is not None:
+                    queue.append(node.right)
+
+            averageValues.append(total/levelSize)
+
+        return averageValues
+    
+    def zigzagLevelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+        order = True    # true = left flase = right
+        queue = deque()
+        queue.append(root)
+
+        result = []
+        while len(queue) > 0:
+            levelSize = len(queue)
+            levelResult = []
+            for i in range(levelSize):
+                node = queue.popleft()
+
+                if node is None:
+                    continue
+
+                levelResult.append(node.val)
+                queue.append(node.left)
+                queue.append(node.right)
+
+            if not levelResult:
+                continue
+            
+            if order:
+                result.append(levelResult)
+            else:
+                levelResult.reverse()
+                result.append(levelResult)
+
+            # reverse traversal order
+            order = not order
+        
+        return result
+
 def main():
     pass
 

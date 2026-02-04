@@ -168,17 +168,58 @@ class Solution:
         
         return -1
 
-    
+    def calcEquation(self, equations: List[List[str]], values: List[float], queries: List[List[str]]) -> List[float]:
+        """
+        Approach:
+
+        Equations make up a directed graph. Use graph traversal to find value of queries
+        """
+        adjList = defaultdict(list)
+        for i, equation in enumerate(equations):
+            src = equation[0]
+            dst = equation[1]
+            adjList[src].append((dst, values[i]))
+            adjList[dst].append((src, 1/values[i]))
+        
+        result = []
+
+        # dfs to find the path from src to dst
+        def dfs(src: str, dst: str, visited: dict, value) -> float:
+            # edge case
+            if dst not in adjList or src not in adjList:
+                return -1.0
+            
+            visited[src] = True
+            # recursion base case
+            if src == dst:
+                return value
+            
+            # go through every neighbor
+            for neighbor, val in adjList[src]:
+                # check if neighbor is visited
+                if visited[neighbor]:
+                    continue
+                result = dfs(neighbor, dst, visited, value*val)
+                if result != -1:
+                    return result
+            
+            return -1.0
+        
+        visited = defaultdict(bool)
+        # for each query, perform graph traversal to find the value of that query
+        for query in queries:
+            queryResult = dfs(query[0], query[1], visited, 1.0)
+            result.append(queryResult)
+            visited.clear()
+        return result
+
 def main():
     s = Solution()
-    print(s.findCheapestPrice(
-        4,
-        [[0,1,1],[0,2,5],[1,2,1],[2,3,1]],
-        0,
-        3,
-        1
+    print(s.calcEquation(
+        [["a","b"],["b","c"]],
+        [2.0,3.0],
+        [["a","c"],["b","a"],["a","e"],["a","a"],["x","x"]]
     ))
-    pass
 
 if __name__ == "__main__":
     main()
