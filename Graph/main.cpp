@@ -9,7 +9,7 @@
 
 using namespace std;
 
-namespace Soution {
+namespace Solution {
     // 743. Network Delay Time
     int networkDelayTime(vector<vector<int> > &times, int n, int k) {
         /**
@@ -384,6 +384,71 @@ namespace Soution {
                 }
             }
         }
+    }
+
+    // 3619. Count Islands With Total Value Divisible by K
+    int countIslands(vector<vector<int>>& grid, int k) {
+        vector<int> sums;
+        int m = grid.size();
+        int n = grid[0].size();
+
+        // let -1 represent visited nodes
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (grid[i][j] == 0 || grid[i][j] == -1) {
+                    continue;
+                }
+
+                // start bfs
+                // stores i, j index of a node
+                queue<pair<int, int>> q;
+                int sum = grid[i][j];
+
+                // mark i j as visited and push
+                grid[i][j] = -1;
+                q.push({i, j});
+
+                while (!q.empty()) {
+                    auto node = q.front();
+                    q.pop();
+
+                    // iterate neighbors (left right top down cells)
+                    // check top neighbor
+                    if (i - 1 >= 0 && grid[i-1][j] > 0) {
+                        sum += grid[i-1][j];
+                        grid[i-1][j] = -1;
+                        q.push({i-1, j});
+                    }
+
+                    // check down
+                    if (i + 1 < m && grid[i+1][j] > 0) {
+                        sum += grid[i+1][j];
+                        grid[i+1][j] = -1;
+                        q.push({i+1, j});
+                    }
+
+                    // check left
+                    if (j - 1 >= 0 && grid[i][j-1] > 0) {
+                        sum += grid[i][j-1];
+                        grid[i][j-1] = -1;
+                        q.push({i, j-1});
+                    }
+
+                    // check right
+                    if (j + 1 < n && grid[i][j+1] > 0) {
+                        sum += grid[i+1][j+1];
+                        grid[i][j+1] = -1;
+                        q.push({i, j+1});
+                    }
+
+                }
+
+                // at this point bfs is done and all connected cells are searched
+                sums.push_back(sum);
+            }
+        }
+
+        return *(max_element(sums.begin(), sums.end()));
     }
 };
 
